@@ -11,7 +11,6 @@
 import random
 import serial
 
-
 # ---------------------PySerial Enable------------------------
 
 # ser = serial.Serial('/dev/ttyACM0', 9600)  # Establish the connection on a specific port
@@ -20,6 +19,9 @@ import serial
 # ---------------------Queue class----------------------------
 
 # Queue class that is for storing locations robot is going to.
+from SERB.path_planning import a_star_search
+
+
 class Queue:
     def __init__(self):
         self.items = []
@@ -54,26 +56,6 @@ graph = {'A': {'B', 'E', 'D'},
 def random_node_one():
     random_node = random.choice(list(graph.keys()))
     return random_node[0]
-
-
-# Breadth-First Search
-def bfs_paths(graph, start, goal):
-    queue = [(start, [start])]
-    while queue:
-        (vertex, path) = queue.pop(0)
-        for next_vertex in graph[vertex] - set(path):
-            if next_vertex == goal:
-                yield path + [next_vertex]
-            else:
-                queue.append((next_vertex, path + [next_vertex]))
-
-
-# Finds shortest path
-def shortest_path(graph, start, goal):
-    try:
-        return next(bfs_paths(graph, start, goal))
-    except StopIteration:
-        return None
 
 
 # Converts Path into Motion Queue THEPROJECT.PY
@@ -149,12 +131,12 @@ for x in range(0, 1):
     print(ending_node)
 
     # Valid path check (Start /= End)
-    path = shortest_path(graph, starting_node, ending_node)
+    path = a_star_search(graph, starting_node, ending_node)
     while True:
         # HERE GIVE INFORMATION TO ROBOT, PARSE THROUGH NODES
         if not path:
             ending_node = random_node_one()
-            path = shortest_path(graph, starting_node, ending_node)
+            path = a_star_search(graph, starting_node, ending_node)
             print("Empty Path")
             print("Starting Node")
             print(starting_node)
